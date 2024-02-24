@@ -155,6 +155,21 @@ public:
             std::cout << std::setw(15) << (!entry.is_directory() ? (std::to_string(fs::file_size(entry))): "") ;
             std::cout << entry.path().filename().string() << std::endl;
         }
+        std::cout  << std::endl;
+    }
+    static void printCommands() {
+        std::cout << std::setw(30) << std::left << "Command" << "Description" << std::endl;
+        std::cout << std::setw(30) << std::left << "-------" << "-----------" << std::endl;
+        std::cout << std::setw(30) << std::left << "pwd" << "Print current directory path" << std::endl;
+        std::cout << std::setw(30) << std::left << "ls" << "List directory contents" << std::endl;
+        std::cout << std::setw(30) << std::left << "cd .." << "Move to parent directory" << std::endl;
+        std::cout << std::setw(30) << std::left << "cd [path]" << "Move to specified directory" << std::endl;
+        std::cout << std::setw(30) << std::left << "mkdir [name]" << "Create a new directory" << std::endl;
+        std::cout << std::setw(30) << std::left << "rm [path]" << "Remove a file or directory" << std::endl;
+        std::cout << std::setw(30) << std::left << "mv [source] [destination]" << "Move a file or directory" << std::endl;
+        std::cout << std::setw(30) << std::left << "cp [source] [destination]" << "Copy a file or directory" << std::endl;
+        std::cout << std::setw(30) << std::left << "exit" << "Exit the program" << std::endl;
+        std::cout << std::setw(30) << std::left << "help" << "Print out all commands" << std::endl << std::endl;
     }
 
     // Method to convert Path to string
@@ -168,15 +183,15 @@ public:
     }
 };
 
-void processCommand(const std::string& command, const Path& path);
+void processCommand(const std::string& commandString,  Path& path);
 
 int main() {
     std::string command;
     Path path(std::filesystem::current_path().string());
+    path.printCommands();
 
-    std::cout << path.pwd() << std::endl;
     while (true) {
-        std::cout << "Enter a command (pwd, ls, cd .., cd [path], mkdir [name], rm [path], exit): ";
+        std::cout << "Enter command: ";
         std::getline(std::cin, command);
         if (trim(command) == "exit") break;
         processCommand(command, path);
@@ -184,30 +199,44 @@ int main() {
     return 0;
 }
 
-void processCommand(const std::string& commandString, const Path& path) {
+void processCommand(const std::string& commandString, Path& path) {
     std::vector<std::string> args;
     std::string command = trim(commandString);
 
-    if (command == "pwd" ) std::cout << path.pwd()<< std::endl;
-    else if (command == "ls") path.ls();
-    else if (command == "cd" || command == "mkdir" || command == "rm") {
-        // Split command and arguments
-        size_t pos = command.find(' ');
-        std::string cmd = command.substr(0, pos);
-        std::string arg = command.substr(pos + 1);
-        if(arg.empty()){
-            std::cout << "Missing argument for command: " << cmd << std::endl;
-            return;
-        }
-        // Call function with arguments
-        //if (cmd == "cd")
-        //    cd(arg);
-        //else if (cmd == "mkdir")
-        //    mkdir(arg);
-        //else if (cmd == "rm")
-        //    rm(arg);
-    } else std::cout << "Invalid command. Please try again.\n";
+    // Split command and arguments
+    std::istringstream iss(command);
+    std::string cmd;
+    std::vector<std::string> cmdArgs;
+    iss >> cmd;
+    std::string arg;
+    while (iss >> arg) cmdArgs.push_back(arg);
+
+    if (cmd == "pwd") std::cout << path.pwd() << std::endl;
+    else if (cmd == "ls") path.ls();
+    else if (cmd == "help") path.printCommands();
+    else if (cmd == "cd") {
+        if (cmdArgs.size() == 1) path.cd(cmdArgs[0]);
+        else std::cout << "Invalid arguments for command 'cd'.\n";
+    }
+    else if (cmd == "mkdir") {
+        if (cmdArgs.size() == 1) path.mkdir(cmdArgs[0]);
+        else std::cout << "Invalid arguments for command 'mkdir'.\n";
+    }
+    else if (cmd == "rm") {
+        if (cmdArgs.size() == 1) path.rm(cmdArgs[0]);
+        else std::cout << "Invalid arguments for command 'rm'.\n";
+    }
+    else if (cmd == "mv") {
+        if (cmdArgs.size() == 2) path.mv(cmdArgs[0], cmdArgs[1]);
+        else std::cout << "Invalid arguments for command 'mv'.\n";
+    }
+    else if (cmd == "cp") {
+        if (cmdArgs.size() == 2) path.cp(cmdArgs[0], cmdArgs[1]);
+        else std::cout << "Invalid arguments for command 'cp'.\n";
+    }
+    else std::cout << "Invalid command. Please try again.\n";
 }
+
 
 // Trim leading and trailing whitespace from a string
 std::string trim(const std::string& str) {
