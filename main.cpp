@@ -4,6 +4,15 @@
 #include <sstream>
 #include <filesystem>
 
+bool isSourcePath(const std::string& str);
+std::string trim(const std::string& str);
+
+bool isSourcePath(const std::string& str) {
+    if (!str.empty() && str.back() == '/')
+        return true;
+    return false;
+}
+
 class Path {
 private:
     std::vector<std::string> directories;
@@ -17,7 +26,7 @@ public:
         }
     }
 
-      // Method to change directory (cd)
+    // Method to change directory (cd)
     void cd(const std::string& path) {
         namespace fs = std::filesystem;
 
@@ -31,8 +40,44 @@ public:
         }
     }
 
+    // Method to copy a file or directory
+    void cp(const std::string& sourcePath, const std::string& destinationDirectory) {
+        namespace fs = std::filesystem;
+        std::string sourceFilePath = pwd() + "\\" + sourcePath;
+        std::string destinationDirectoryPath = pwd() + "\\" + destinationDirectory;
 
-// Method to move a file
+        // If destination is a file, then simply copy the source file to the current directory with the specified name
+        if(!isSourcePath(destinationDirectory)){
+            fs::copy(sourceFilePath, pwd() + "\\" + destinationDirectory);
+            return;
+        }
+
+        if(!fs::exists(sourceFilePath)){
+            std::cout << "Source file or directory '" << sourcePath << "' not found \n";
+            return;
+        }
+
+
+        // If source is a directory, recursively copy its contents
+        if (fs::is_directory(sourceFilePath)) {
+            if (!fs::exists(destinationDirectoryPath)){
+                std::cout << "Destination directory '" << destinationDirectory << "' not found.\n";
+                return;
+            }
+            for (const auto& entry : fs::recursive_directory_iterator(sourceFilePath)) {
+                std::string relativePath = entry.path().string().substr(sourceFilePath.size());
+                fs::copy(entry, destinationDirectoryPath + relativePath, fs::copy_options::recursive);
+            }
+        }
+
+        // If source is a file, copy it to the destination directory
+        if (fs::exists(destinationDirectoryPath) && fs::is_directory(destinationDirectoryPath))
+            fs::copy(sourceFilePath, destinationDirectoryPath + "\\" + fs::path(sourceFilePath).filename().string());
+        else
+            std::cout << "Destination directory '" << destinationDirectory << "' not found.\n";
+    }
+
+    // Method to move a file
     void mv(const std::string& sourceFileName, const std::string& destinationDirectory) {
         namespace fs = std::filesystem;
         std::string sourceFilePath = pwd() + "\\" + sourceFileName;
@@ -124,12 +169,12 @@ public:
 };
 
 void processCommand(const std::string& command, const Path& path);
-std::string trim(const std::string& str);
 
 int main() {
     std::string command;
     Path path(std::filesystem::current_path().string());
 
+    std::cout << path.pwd() << std::endl;
     while (true) {
         std::cout << "Enter a command (pwd, ls, cd .., cd [path], mkdir [name], rm [path], exit): ";
         std::getline(std::cin, command);
