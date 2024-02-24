@@ -3,6 +3,7 @@
 #include <string>
 #include <sstream>
 #include <filesystem>
+#include <map>
 
 bool isSourcePath(const std::string& str);
 std::string trim(const std::string& str);
@@ -26,6 +27,28 @@ public:
         }
     }
 
+    static void printCommands() {
+        std::map<std::string, std::string> commands = {
+                {"pwd", "Print current directory path"},
+                {"ls", "List directory contents"},
+                {"cd ..", "Move to parent directory"},
+                {"cd [path]", "Move to specified directory"},
+                {"mkdir [name]", "Create a new directory"},
+                {"rm [path]", "Remove a file or directory"},
+                {"mv [source] [destination]", "Move a file or directory"},
+                {"cp [source] [destination]", "Copy a file or directory"},
+                {"exit", "Exit the program"},
+                {"help", "View all commands"}
+        };
+        const int COMMAND_COL_WIDTH = 30;
+        std::cout << std::setw( COMMAND_COL_WIDTH ) << std::left << "Command" << "Description" << std::endl;
+        std::cout << std::setw(COMMAND_COL_WIDTH) << std::left << "-------" << "-----------" << std::endl;
+        for (const auto& [command, description] : commands) {
+            std::cout << std::setw(COMMAND_COL_WIDTH) << std::left << command << description << std::endl;
+        }
+        std::cout << std::endl;
+    }
+    
     // Method to change directory (cd)
     void cd(const std::string& path) {
         namespace fs = std::filesystem;
@@ -156,20 +179,6 @@ public:
             std::cout << entry.path().filename().string() << std::endl;
         }
         std::cout  << std::endl;
-    }
-    static void printCommands() {
-        std::cout << std::setw(30) << std::left << "Command" << "Description" << std::endl;
-        std::cout << std::setw(30) << std::left << "-------" << "-----------" << std::endl;
-        std::cout << std::setw(30) << std::left << "pwd" << "Print current directory path" << std::endl;
-        std::cout << std::setw(30) << std::left << "ls" << "List directory contents" << std::endl;
-        std::cout << std::setw(30) << std::left << "cd .." << "Move to parent directory" << std::endl;
-        std::cout << std::setw(30) << std::left << "cd [path]" << "Move to specified directory" << std::endl;
-        std::cout << std::setw(30) << std::left << "mkdir [name]" << "Create a new directory" << std::endl;
-        std::cout << std::setw(30) << std::left << "rm [path]" << "Remove a file or directory" << std::endl;
-        std::cout << std::setw(30) << std::left << "mv [source] [destination]" << "Move a file or directory" << std::endl;
-        std::cout << std::setw(30) << std::left << "cp [source] [destination]" << "Copy a file or directory" << std::endl;
-        std::cout << std::setw(30) << std::left << "exit" << "Exit the program" << std::endl;
-        std::cout << std::setw(30) << std::left << "help" << "Print out all commands" << std::endl << std::endl;
     }
 
     // Method to convert Path to string
