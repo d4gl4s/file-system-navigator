@@ -31,6 +31,32 @@ public:
         }
     }
 
+
+// Method to move a file
+    void mv(const std::string& sourceFileName, const std::string& destinationDirectory) {
+        namespace fs = std::filesystem;
+        std::string sourceFilePath = pwd() + "\\" + sourceFileName;
+
+        if (destinationDirectory == "..") {
+            // Construct the path to the parent directory
+            std::filesystem::path parentPath = std::filesystem::path(pwd()).parent_path().parent_path(); // for some reason have to call parent_path() twice to get the parent path;
+            std::string parentDirectoryPath = parentPath.string();
+            if(parentPath == parentPath.root_path()) return;
+            std::string destinationPath = parentDirectoryPath + "\\" + sourceFileName;
+            fs::rename(sourceFilePath, destinationPath);
+            return;
+        }
+        std::string destinationDirectoryPath = pwd() + "\\" + destinationDirectory;
+        if(!fs::exists(sourceFilePath)){
+            std::cout << "File '" << sourceFileName << "' not found. \n";
+            return;
+        }
+        if (fs::is_directory(destinationDirectoryPath))
+            fs::rename(sourceFilePath, destinationDirectoryPath + "\\" + sourceFileName);
+        else
+            std::cout << "Destination directory '" << destinationDirectory << "' not found.\n";
+    }
+
     // Method to remove a file or directory
     void rm(const std::string& fileName) {
         namespace fs = std::filesystem;
@@ -103,6 +129,7 @@ std::string trim(const std::string& str);
 int main() {
     std::string command;
     Path path(std::filesystem::current_path().string());
+
     while (true) {
         std::cout << "Enter a command (pwd, ls, cd .., cd [path], mkdir [name], rm [path], exit): ";
         std::getline(std::cin, command);
