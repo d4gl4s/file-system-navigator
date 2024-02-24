@@ -1,6 +1,6 @@
 # C++ File System Navigator 📂
 
-A simple file system navigator implemented in C++ as a hobby project. The main aim of this project is to gain more experience programming in C++ and hopefully learn something new about file systems as well. The navigator offers essential file system commands for navigation and management, including `pwd`, `cd`, `ls`, `mkdir`, `rm`, `mv`, `cp`, `undo/redo` and more.
+A simple file system navigator implemented in C++ as a weekend hobby project. The main aim of this project is to gain more experience programming in C++ and hopefully learn something new about file systems as well. The navigator offers essential file system commands for navigation and management, including `pwd`, `cd`, `ls`, `mkdir`, `rm`, `mv`, `cp`, `undo/redo` and more.
 
 ## Functionality
 - `pwd` Display the current working directory.
