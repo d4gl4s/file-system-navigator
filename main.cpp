@@ -28,12 +28,28 @@ public:
 
     // Method to change directory (cd)
     void cd(int steps) {
-        if (steps > 0 && directories.size() >= steps) {
+        if (steps > 0 && directories.size() >= steps)
             directories.erase(directories.begin(), directories.begin() + steps);
-        } else if (steps < 0 && directories.size() >= -steps) {
+        else if (steps < 0 && directories.size() >= -steps)
             directories.insert(directories.begin(), -steps, "");
-        } else {
-            std::cout << "Invalid step count.\n";
+        else std::cout << "Invalid step count.\n";
+    }
+    
+    // Method to list directory contents (ls)
+    void ls() const {
+        namespace fs = std::filesystem;
+        std::cout << std::left << std::setw(5) << "Type";
+        std::cout << std::setw(15) << "Size";
+        std::cout << "Name" << std::endl;
+        // Print separator line
+        std::cout << std::setfill('-') << std::setw(45) << "" << std::endl;
+        std::cout << std::setfill(' ');
+
+       // Iterate over directory entries
+        for (const auto& entry : fs::directory_iterator(pwd())) {
+            std::cout << std::left << std::setw(5) << (entry.is_directory() ? "d" : "-");
+            std::cout << std::setw(15) << (!entry.is_directory() ? (std::to_string(fs::file_size(entry))): "") ;
+            std::cout << entry.path().filename().string() << std::endl;
         }
     }
 
@@ -41,9 +57,7 @@ public:
     [[nodiscard]] std::string toString() const {
         std::string result;
         for (const std::string& dir : directories) {
-            if (!result.empty()) {
-                result += "->";
-            }
+            if (!result.empty()) result += "->";
             result += dir;
         }
         return result;
@@ -55,8 +69,7 @@ std::string trim(const std::string& str);
 
 int main() {
     std::string command;
-    std::string curDirectory = std::filesystem::current_path().string();
-    Path path(curDirectory);
+    Path path(std::filesystem::current_path().string());
     while (true) {
         std::cout << "Enter a command (pwd, ls, cd .., cd [path], mkdir [name], rm [path], exit): ";
         std::getline(std::cin, command);
@@ -70,10 +83,9 @@ void processCommand(const std::string& commandString, const Path& path) {
     std::vector<std::string> args;
     std::string command = trim(commandString);
 
-    if (command == "pwd" || command == "ls") {
-        if (command == "pwd") std::cout << path.pwd();
-        //else ls();
-    } else if (command == "cd" || command == "mkdir" || command == "rm") {
+    if (command == "pwd" ) std::cout << path.pwd()<< std::endl;
+    else if (command == "ls") path.ls();
+    else if (command == "cd" || command == "mkdir" || command == "rm") {
         // Split command and arguments
         size_t pos = command.find(' ');
         std::string cmd = command.substr(0, pos);
