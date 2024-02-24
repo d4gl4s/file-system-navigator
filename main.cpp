@@ -5,10 +5,10 @@
 #include <filesystem>
 #include <map>
 
-bool isSourcePath(const std::string& str);
+bool isSourceDirectory(const std::string& str);
 std::string trim(const std::string& str);
 
-bool isSourcePath(const std::string& str) {
+bool isSourceDirectory(const std::string& str) {
     if (!str.empty() && str.back() == '/')
         return true;
     return false;
@@ -48,7 +48,7 @@ public:
         }
         std::cout << std::endl;
     }
-    
+
     // Method to change directory (cd)
     void cd(const std::string& path) {
         namespace fs = std::filesystem;
@@ -70,7 +70,7 @@ public:
         std::string destinationDirectoryPath = pwd() + "\\" + destinationDirectory;
 
         // If destination is a file, then simply copy the source file to the current directory with the specified name
-        if(!isSourcePath(destinationDirectory)){
+        if(!isSourceDirectory(destinationDirectory)){
             fs::copy(sourceFilePath, pwd() + "\\" + destinationDirectory);
             return;
         }
