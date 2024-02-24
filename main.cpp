@@ -17,13 +17,18 @@ public:
         }
     }
 
-    // Method to change directory (cd)
-    void cd(int steps) {
-        if (steps > 0 && directories.size() >= steps)
-            directories.erase(directories.begin(), directories.begin() + steps);
-        else if (steps < 0 && directories.size() >= -steps)
-            directories.insert(directories.begin(), -steps, "");
-        else std::cout << "Invalid step count.\n";
+      // Method to change directory (cd)
+    void cd(const std::string& path) {
+        namespace fs = std::filesystem;
+
+        if (path == ".." && !directories.empty()) directories.pop_back(); // Move up one directory
+        else {
+            std::string newPath = pwd() + "\\" + path;
+            if (fs::is_directory(newPath))
+                directories.push_back(path); // Move to the specified directory
+            else
+                std::cout << "Directory '" << path << "' not found.\n";
+        }
     }
 
     // Method to remove a file or directory
@@ -98,12 +103,6 @@ std::string trim(const std::string& str);
 int main() {
     std::string command;
     Path path(std::filesystem::current_path().string());
-    path.ls();
-    path.mkdir("newTest");
-    path.mkdir("newTest\\test2");
-    path.ls();
-    path.rm("newTest");
-    path.ls();
     while (true) {
         std::cout << "Enter a command (pwd, ls, cd .., cd [path], mkdir [name], rm [path], exit): ";
         std::getline(std::cin, command);
