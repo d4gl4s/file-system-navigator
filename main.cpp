@@ -17,6 +17,45 @@ public:
         }
     }
 
+    // Method to change directory (cd)
+    void cd(int steps) {
+        if (steps > 0 && directories.size() >= steps)
+            directories.erase(directories.begin(), directories.begin() + steps);
+        else if (steps < 0 && directories.size() >= -steps)
+            directories.insert(directories.begin(), -steps, "");
+        else std::cout << "Invalid step count.\n";
+    }
+
+    // Method to remove a file or directory
+    void rm(const std::string& fileName) {
+        namespace fs = std::filesystem;
+        std::string filePath = pwd() + "\\" + fileName;
+
+        if(!fs::exists(filePath)){
+            std::cout << "File or directory '" <<fileName<<"' not found.\n";
+            return;
+        }
+        if(!fs::is_directory(filePath)){
+            fs::remove(filePath);
+            return;
+        }
+
+        // If it's a directory and contains objects, ask for confirmation
+        if (!fs::is_empty(filePath)) {
+            std::string response;
+            std::cout << "Directory '" << fileName << "' is not empty. Are you sure you want to delete it? (yes/no): ";
+            std::cin >> response;
+            if (response != "yes") return;
+        }
+        fs::remove_all(filePath);
+    }
+
+    // Method to create a new directory
+    void mkdir(const std::string& dirName) {
+        namespace fs = std::filesystem;
+        fs::create_directory(pwd() + "\\" + dirName);
+    }
+
     // Method to get the current absolute path
     [[nodiscard]] std::string pwd() const {
         std::string absolutePath;
@@ -26,15 +65,6 @@ public:
         return absolutePath;
     }
 
-    // Method to change directory (cd)
-    void cd(int steps) {
-        if (steps > 0 && directories.size() >= steps)
-            directories.erase(directories.begin(), directories.begin() + steps);
-        else if (steps < 0 && directories.size() >= -steps)
-            directories.insert(directories.begin(), -steps, "");
-        else std::cout << "Invalid step count.\n";
-    }
-    
     // Method to list directory contents (ls)
     void ls() const {
         namespace fs = std::filesystem;
@@ -70,6 +100,12 @@ std::string trim(const std::string& str);
 int main() {
     std::string command;
     Path path(std::filesystem::current_path().string());
+    path.ls();
+    path.mkdir("newTest");
+    path.mkdir("newTest\\test2");
+    path.ls();
+    path.rm("newTest");
+    path.ls();
     while (true) {
         std::cout << "Enter a command (pwd, ls, cd .., cd [path], mkdir [name], rm [path], exit): ";
         std::getline(std::cin, command);
