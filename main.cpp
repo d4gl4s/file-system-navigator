@@ -35,18 +35,16 @@ public:
             std::cout << "File or directory '" <<fileName<<"' not found.\n";
             return;
         }
-        if(!fs::is_directory(filePath)){
+        if(!fs::is_directory(filePath) || fs::is_directory(filePath) && fs::is_empty(filePath)){
             fs::remove(filePath);
             return;
         }
 
         // If it's a directory and contains objects, ask for confirmation
-        if (!fs::is_empty(filePath)) {
-            std::string response;
-            std::cout << "Directory '" << fileName << "' is not empty. Are you sure you want to delete it? (yes/no): ";
-            std::cin >> response;
-            if (response != "yes") return;
-        }
+        std::string response;
+        std::cout << "Directory '" << fileName << "' is not empty. Are you sure you want to delete it? (yes/no): ";
+        std::cin >> response;
+        if (response != "yes") return;
         fs::remove_all(filePath);
     }
 
