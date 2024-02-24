@@ -12,7 +12,7 @@ Read and find out more about the project by visiting my portfolio page: https://
 - `rm` Remove a file or directory.
 - `mv` Move or rename files or directories.
 - `cp` Copy files or directories.
-- `Undo/Redo:` Support undo and redo functionalities for file operations.
+- `Undo/Redo` Support undo and redo functionalities for file operations.
 - Viewing the contents of text files within the terminal.
 - Search for files or directories within the current directory.
 
